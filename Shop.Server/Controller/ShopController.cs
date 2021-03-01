@@ -12,9 +12,6 @@ namespace Shop.Server.Controller
         private IProductRepository ProductRepository { get; set; }
         private IShowcaseRepository ShowcaseRepository { get; set; }
 
-        public void Login() => IsLoggedIn = true;
-        public void Logout() => IsLoggedIn = false;
-
         public ShopController()
         {
             ProductRepository = new ProductRepository();
@@ -24,59 +21,13 @@ namespace Shop.Server.Controller
             ShowcaseRepository.Seed(2);
         }
 
-        //Будут делегаты, будет жизнь
-        public void RouteTo(string command)
-        {
-            switch (command)
-            {
-                case "product.show":
-                    PrintProductsAction();
-                    break;
-                case "product.create":
-                    ShowResult(ProductCreateAction());
-                    break;
-                case "product.edit":
-                    ShowResult(ProductUpdateAction());
-                    break;
-                case "product.remove":
-                    ShowResult(ProductRemoveAction());
-                    break;
-
-                case "showcase.show":
-                    PrintShowcasesAction();
-                    break;
-                case "showcase.create":
-                    ShowResult(ShowcaseCreateAction());
-                    break;
-                case "showcase.edit":
-                    ShowResult(ShowcaseUpdateAction());
-                    break;
-                case "showcase.remove":
-                    ShowResult(ShowcaseRemoveAction());
-                    break;
-                case "showcase.place_product":
-                    ShowResult(PlaceProductAction());
-                    break;
-                case "showcase.products":
-                    PrintShowcaseProductsAction();
-                    break;
-                case "showcase.trash":
-                    PrintShowcasesAction(showOnlyDeleted: true);
-                    break;
-
-                case "app.exit":
-                     Logout();
-                    break;
-            }
-        }
-
         #region Actions
 
         /// <summary>
         /// Вызывает сценарий создания товара
         /// </summary>
         /// <returns></returns>
-        IResult ProductCreateAction()
+        internal IResult ProductCreateAction()
         {
             var result = new Result();
             Output.WriteLine("\r\nДобавить товар:", ConsoleColor.Yellow);

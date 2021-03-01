@@ -17,22 +17,51 @@ namespace Shop.Server
             var context = listener.GetContext();
 
             var shop = new ShopController();
-            shop.Login();
 
-            switch(context.Request.HttpMethod)
+            var data = context.Request.QueryString;
+
+            var command = context.Request.Url.AbsoluteUri.TrimStart('/').ToLower();
+
+            switch (command)
             {
-                case "GET":
+                case "products":
                     break;
-                case "POST":
+                case "products/show":
+                     PrintProductsAction();
                     break;
-                case "PUT":
+                case "product/create":
+                    shop.ProductCreateAction
+                    ShowResult(ProductCreateAction());
                     break;
-                case "DELETE":
+                case "product/edit":
+                    ShowResult(ProductUpdateAction());
                     break;
-                default:
+                case "product/remove":
+                    ShowResult(ProductRemoveAction());
+                    break;
+                case "showcase/show":
+                    PrintShowcasesAction();
+                    break;
+                case "showcase.create":
+                    ShowResult(ShowcaseCreateAction());
+                    break;
+                case "showcase.edit":
+                    ShowResult(ShowcaseUpdateAction());
+                    break;
+                case "showcase.remove":
+                    ShowResult(ShowcaseRemoveAction());
+                    break;
+                case "showcase.place_product":
+                    ShowResult(PlaceProductAction());
+                    break;
+                case "showcase.products":
+                    PrintShowcaseProductsAction();
+                    break;
+                case "showcase.trash":
+                    PrintShowcasesAction(showOnlyDeleted: true);
                     break;
             }
-            
+
             var request = context.Request;
             HttpListenerResponse response = context.Response;
             string responseStr = "<html><head><meta charset='utf8'></head><body>Привет мир!</body></html>";
