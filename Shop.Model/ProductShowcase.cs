@@ -13,25 +13,25 @@
 
             if (ShowcaseId < 1)
             {
-                result.Success = false;
+                result.IsSuccess = false;
                 result.Message += "Идентификатор витрины должен быть целым положительным числом\r\n";
             }
 
             if (ProductId < 1)
             {
-                result.Success = false;
+                result.IsSuccess = false;
                 result.Message += "Идентификатор товара должен быть целым положительным числом\r\n";
             }
 
             if (Quantity < 1)
             {
-                result.Success = false;
+                result.IsSuccess = false;
                 result.Message += "Количество товара должно быть целым положительным числом\r\n";
             }
 
             if (Cost < 1)
             {
-                result.Success = false;
+                result.IsSuccess = false;
                 result.Message += "Стоимость товара должна быть целым положительным числом\r\n";
             }
 

@@ -107,7 +107,7 @@ namespace Shop.Server.DAL
 
             var validate = ps.Validate();
 
-            if (validate.Success)
+            if (validate.IsSuccess)
             {
                 _products.Add(ps);
                 return new Result(true);

@@ -17,13 +17,13 @@ namespace Shop.Model
 
             if (string.IsNullOrWhiteSpace(Name))
             {
-                result.Success = false;
+                result.IsSuccess = false;
                 result.Message += "Наименование не должно быть пустым\r\n";
             }
 
             if (MaxCapacity < 1)
             {
-                result.Success = false;
+                result.IsSuccess = false;
                 result.Message += "Максимально допустимый объем должен быть целым положительным числом\r\n";
             }
 

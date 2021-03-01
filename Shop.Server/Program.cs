@@ -1,7 +1,9 @@
-﻿using Shop.Server.Controller;
+﻿using Newtonsoft.Json;
+using Shop.Model;
+using Shop.Server.Controller;
 using System;
-using System.IO;
 using System.Net;
+using System.Text;
 
 namespace Shop.Server
 {
@@ -18,61 +20,36 @@ namespace Shop.Server
 
             var shop = new ShopController();
 
-            var data = context.Request.QueryString;
+            var absoluteUrl = context.Request.Url.AbsoluteUri.TrimStart('/').Split('/');
 
-            var command = context.Request.Url.AbsoluteUri.TrimStart('/').ToLower();
+            object responseObject = null;
 
-            switch (command)
+            if (absoluteUrl.Length > 0 && absoluteUrl.Length < 3)
             {
-                case "products":
-                    break;
-                case "products/show":
-                     PrintProductsAction();
-                    break;
-                case "product/create":
-                    shop.ProductCreateAction
-                    ShowResult(ProductCreateAction());
-                    break;
-                case "product/edit":
-                    ShowResult(ProductUpdateAction());
-                    break;
-                case "product/remove":
-                    ShowResult(ProductRemoveAction());
-                    break;
-                case "showcase/show":
-                    PrintShowcasesAction();
-                    break;
-                case "showcase.create":
-                    ShowResult(ShowcaseCreateAction());
-                    break;
-                case "showcase.edit":
-                    ShowResult(ShowcaseUpdateAction());
-                    break;
-                case "showcase.remove":
-                    ShowResult(ShowcaseRemoveAction());
-                    break;
-                case "showcase.place_product":
-                    ShowResult(PlaceProductAction());
-                    break;
-                case "showcase.products":
-                    PrintShowcaseProductsAction();
-                    break;
-                case "showcase.trash":
-                    PrintShowcasesAction(showOnlyDeleted: true);
-                    break;
-            }
+                var controller = absoluteUrl[0];
+                var action = (absoluteUrl.Length == 2) ? absoluteUrl[1] : string.Empty;
 
-            var request = context.Request;
-            HttpListenerResponse response = context.Response;
-            string responseStr = "<html><head><meta charset='utf8'></head><body>Привет мир!</body></html>";
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseStr);
-            response.ContentLength64 = buffer.Length;
-            Stream output = response.OutputStream;
-            output.Write(buffer, 0, buffer.Length);
-            output.Close();
+                switch (controller)
+                {
+                    case "products":
+                        responseObject = shop.ProductsController.RouteToAction(action, context.Request);
+                        break;
+
+                    case "showcases":
+                        responseObject = shop.ShowcasesController.RouteToAction(action, context.Request);
+                        break;
+                }
+            }
+            else responseObject = new Result() { Message = "404" };
+
+            var response = JsonConvert.SerializeObject(responseObject);
+            var buffer = Encoding.UTF8.GetBytes(response);
+
+            context.Response.ContentType = "application/json";
+            context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+            context.Response.Close();
             listener.Stop();
-            Console.WriteLine("Обработка подключений завершена");
-            Console.Read();
+            Console.ReadKey();
         }
     }
 }

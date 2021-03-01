@@ -13,13 +13,13 @@
 
             if (string.IsNullOrWhiteSpace(Name))
             {
-                result.Success = false;
+                result.IsSuccess = false;
                 result.Message += "Наименование не должно быть пустым\r\n";
             }
 
             if (Capacity < 1)
             {
-                result.Success = false;
+                result.IsSuccess = false;
                 result.Message += "Занимаемый объем должен быть целым положительным числом\r\n";
             }
 

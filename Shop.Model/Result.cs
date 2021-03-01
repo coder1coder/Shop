@@ -2,10 +2,10 @@
 {
     public class Result : IResult
     {
-        public bool Success { get; set; }
+        public bool IsSuccess { get; set; }
         public string Message { get; set; }
 
-        public Result(bool success = false) => Success = success;
+        public Result(bool success = false) => IsSuccess = success;
         public Result(string message) => Message = message;
     }
 }
