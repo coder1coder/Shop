@@ -6,33 +6,29 @@ using System.Net;
 
 namespace Shop.Server.Controller
 {
-    internal class ProductController
+    internal class ProductController: Controller
     {
-        private readonly IProductRepository _repository;
-
-        public ProductController()
-        {
-            _repository = new ProductRepository();
-        }
-
-        internal IResult RouteToAction(string action, HttpListenerRequest request)
+        internal IResult RouteToAction(string action, HttpListenerContext context)
         {
             return action switch
             {
-                "" => Get(),
-                "create" => Create(request),
-                "update" => Update(request),
-                "delete" => Delete(request),
+                "" => Get(context),
+                "create" => Create(context),
+                "update" => Update(context),
+                "delete" => Delete(context),
                 _ => new Result() { Message = "404" },
             };
         }
 
-        internal IEnumerable<Product> Get()
+        internal string Get(HttpListenerContext context)
         {
-            return _repository.All();
+            if (context.Request.HttpMethod != "GET")
+                return context.Response.OutputStream
+
+            return _productRepository.All();
         }
 
-        internal IResult Create(HttpListenerRequest request)
+        internal IResult Create(HttpListenerContext context)
         {
             var data = request.QueryString;
 
@@ -51,7 +47,7 @@ namespace Shop.Server.Controller
             if (!product.Validate().IsSuccess)
                 return new Result() { Message = "fail validate" };
 
-            _repository.Add(product);
+            _productRepository.Add(product);
 
             return new Result(true);
         }
@@ -65,7 +61,7 @@ namespace Shop.Server.Controller
             if (!int.TryParse(Console.ReadLine(), out int pid))
                 return new Result("Идентификатор должен быть целым положительным числом");
 
-            var product = _repository.GetById(pid);
+            var product = _productRepository.GetById(pid);
 
             if (product == null)
                 return new Result("Товар с идентификатором " + pid + " не найден");
@@ -79,8 +75,8 @@ namespace Shop.Server.Controller
             //Не даем возможность менять объем товара размещенного на витрине
             bool placedInShowcase = false;
 
-            foreach (Showcase showcase in ShowcaseRepository.All())
-                if (_repository.GetShowcaseProductsIds(showcase).Count > 0)
+            foreach (var showcase in _showcaseRepository.All())
+                if (_showcaseRepository.GetShowcaseProductsIds(showcase).Count > 0)
                 {
                     placedInShowcase = true;
                     break;
@@ -100,7 +96,7 @@ namespace Shop.Server.Controller
             if (!validateResult.IsSuccess)
                 return validateResult;
 
-            ProductRepository.Update(product);
+            _productRepository.Update(product);
             result.IsSuccess = true;
 
 
@@ -117,17 +113,17 @@ namespace Shop.Server.Controller
             if (!query.HasKeys() || !int.TryParse(query.Get("id"), out int id) || id == 0)
                 return new Result() { Message = "fail data" };
 
-            var product = _repository.GetById(id);
+            var product = _productRepository.GetById(id);
 
             if (product == null)
                 return new Result("Товар с идентификатором " + id + " не найден");
 
-            _repository.TakeOut(product);
-            _repository.Remove(id);
+            _showcaseRepository.TakeOut(product);
+            _productRepository.Remove(id);
 
             return new Result(true);
         }
 
-        internal void Seed(int count) => _repository.Seed(count);
+        internal void Seed(int count) => _productRepository.Seed(count);
     }
 }

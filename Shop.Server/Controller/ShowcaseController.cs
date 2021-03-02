@@ -1,4 +1,5 @@
-﻿using Shop.Model;
+﻿using Newtonsoft.Json;
+using Shop.Model;
 using Shop.Server.DAL;
 using System;
 using System.Collections.Generic;
@@ -6,16 +7,14 @@ using System.Net;
 
 namespace Shop.Server.Controller
 {
-    public class ShowcaseController
+    internal class ShowcaseController: Controller
     {
-        private readonly IShowcaseRepository _repository;
-
         public ShowcaseController()
         {
-            _repository = new ShowcaseRepository();
+
         }
 
-        public void Seed(int count) => _repository.Seed(count);
+        public void Seed(int count) => _showcaseRepository.Seed(count);
 
         internal object RouteToAction(string action, HttpListenerRequest request)
         {
@@ -31,32 +30,21 @@ namespace Shop.Server.Controller
             };
         }
 
-        private object Get()
+        private string Get(HttpListenerRequest request, int? id)
         {
-            if (showOnlyDeleted)
-                Output.WriteLine("Витрины в корзине", ConsoleColor.Yellow);
-            else
-                Output.WriteLine("Доступные витрины", ConsoleColor.Yellow);
+            if (request.HttpMethod != "GET")
+                return new Result(){ Message = "404" };
+                
+            return new ActionResult(){}
 
-            var count = 0;
-
-            foreach (Showcase showcase in _repository.All())
-                if ((showOnlyDeleted && showcase.RemovedAt.HasValue) || (!showOnlyDeleted && !showcase.RemovedAt.HasValue))
-                {
-                    Output.WriteLine(showcase.ToString());
-                    count++;
-                }
-
-            if (count == 0)
-                return new Result() { Message = "Нет витрин" };
-
+            JsonConvert.SerializeObject()
         }
 
         private object Place(HttpListenerRequest request)
         {
             Console.Clear();
 
-            if (ShowcaseRepository.ActivesCount() == 0 || ProductRepository.Count() == 0)
+            if (_showcaseRepository.ActivesCount() == 0 || _productRepository.Count() == 0)
                 return new Result("Нет товара и витрин для отображения");
 
             Output.Write("Размещение товара на витрине", ConsoleColor.Yellow);
@@ -111,31 +99,25 @@ namespace Shop.Server.Controller
             if (!data.HasKeys() || !int.TryParse(data.Get("id"), out int id) || id < 1)
                 return new Result() { Message = "bad request" };
 
-            var showcase = _repository.GetById(id);
+            var showcase = _showcaseRepository.GetById(id);
 
             if (showcase == null || showcase.RemovedAt.HasValue)
                 return new Result() { Message = "Нет витрин с указанным идентификатором" };
 
-                Output.Write("\r\nТовары на витрине ");
-                Output.WriteLine(showcase.Name + ":", ConsoleColor.Cyan);
+            var ids = _showcaseRepository.GetShowcaseProductsIds(showcase);
 
-                List<int> ids = _repository.GetShowcaseProductsIds(showcase);
+            if (ids.Count == 0)
+                return new Result() { Message = "Нет товаров для отображения" };
 
-                if (ids.Count == 0)
-                {
-                    Output.WriteLine("Нет товаров для отображения");
-                    return;
-                }
+            foreach (int pId in ids)
+            {
+                var product = _showcaseRepository.GetById(pId);
 
-                foreach (int pId in ids)
-                {
-                    var product = _repository.GetById(pId);
-
-                    if (product != null)
-                        Output.WriteLine(product.ToString());
-                }
+                if (product != null)
+                    Output.WriteLine(product.ToString());
             }
-            else Output.WriteLine("Нет витрин с указанным идентификатором");
+
+            return new Result() { Message = "Нет витрин с указанным идентификатором" };
         }
 
         private object Delete(HttpListenerRequest request)
@@ -143,7 +125,7 @@ namespace Shop.Server.Controller
             Console.Clear();
             Output.WriteLine("Удалить витрину", ConsoleColor.Cyan);
 
-            if (ShowcaseRepository.ActivesCount() == 0)
+            if (_show.ActivesCount() == 0)
                 return new Result("Нет витрин для удаления");
 
             PrintShowcasesAction(false);
