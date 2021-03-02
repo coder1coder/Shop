@@ -8,11 +8,11 @@ namespace Shop.Server.Controller
 {
     internal class ProductController
     {
-        private readonly IProductRepository repository;
+        private readonly IProductRepository _repository;
 
         public ProductController()
         {
-            repository = new ProductRepository();
+            _repository = new ProductRepository();
         }
 
         internal IResult RouteToAction(string action, HttpListenerRequest request)
@@ -29,7 +29,7 @@ namespace Shop.Server.Controller
 
         internal IEnumerable<Product> Get()
         {
-            return repository.All();
+            return _repository.All();
         }
 
         internal IResult Create(HttpListenerRequest request)
@@ -51,15 +51,13 @@ namespace Shop.Server.Controller
             if (!product.Validate().IsSuccess)
                 return new Result() { Message = "fail validate" };
 
-            repository.Add(product);
+            _repository.Add(product);
 
             return new Result(true);
         }
 
         internal IResult Update(HttpListenerRequest request)
         {
-            PrintProductsAction(false);
-
             var result = new Result();
 
             Output.Write("\r\nВведите id товара: ", ConsoleColor.Yellow);
@@ -67,7 +65,7 @@ namespace Shop.Server.Controller
             if (!int.TryParse(Console.ReadLine(), out int pid))
                 return new Result("Идентификатор должен быть целым положительным числом");
 
-            var product = ProductRepository.GetById(pid);
+            var product = _repository.GetById(pid);
 
             if (product == null)
                 return new Result("Товар с идентификатором " + pid + " не найден");
@@ -82,7 +80,7 @@ namespace Shop.Server.Controller
             bool placedInShowcase = false;
 
             foreach (Showcase showcase in ShowcaseRepository.All())
-                if (ShowcaseRepository.GetShowcaseProductsIds(showcase).Count > 0)
+                if (_repository.GetShowcaseProductsIds(showcase).Count > 0)
                 {
                     placedInShowcase = true;
                     break;
@@ -119,17 +117,17 @@ namespace Shop.Server.Controller
             if (!query.HasKeys() || !int.TryParse(query.Get("id"), out int id) || id == 0)
                 return new Result() { Message = "fail data" };
 
-            var product = repository.GetById(id);
+            var product = _repository.GetById(id);
 
             if (product == null)
                 return new Result("Товар с идентификатором " + id + " не найден");
 
-            ShowcaseRepository.TakeOut(product);
-            repository.Remove(id);
+            _repository.TakeOut(product);
+            _repository.Remove(id);
 
             return new Result(true);
         }
 
-        internal void Seed(int count) => repository.Seed(count);
+        internal void Seed(int count) => _repository.Seed(count);
     }
 }
