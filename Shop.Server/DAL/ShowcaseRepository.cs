@@ -87,7 +87,7 @@ namespace Shop.Server.DAL
             }
         }
 
-        public IResult Place(int showcaseId, Product product, int quantity, decimal cost)
+        public IResponse Place(int showcaseId, Product product, int quantity, decimal cost)
         {
             var showcase = GetById(showcaseId);
 

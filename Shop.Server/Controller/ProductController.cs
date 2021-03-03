@@ -1,14 +1,13 @@
 ﻿using Shop.Model;
-using Shop.Server.DAL;
 using System;
-using System.Collections.Generic;
 using System.Net;
 
 namespace Shop.Server.Controller
 {
     internal class ProductController: Controller
     {
-        internal IResult RouteToAction(string action, HttpListenerContext context)
+
+        internal IResponse GetResponse(string action, HttpListenerContext context)
         {
             return action switch
             {
@@ -16,55 +15,61 @@ namespace Shop.Server.Controller
                 "create" => Create(context),
                 "update" => Update(context),
                 "delete" => Delete(context),
-                _ => new Result() { Message = "404" },
+                _ => new Response(404)
             };
         }
 
-        internal string Get(HttpListenerContext context)
+        private IResponse Get(HttpListenerContext context)
         {
             if (context.Request.HttpMethod != "GET")
-                return context.Response.OutputStream
+                return new Response(404);
 
-            return _productRepository.All();
+            return new Response(200, _productRepository.All());
         }
 
-        internal IResult Create(HttpListenerContext context)
+        internal IResponse Create(HttpListenerContext context)
         {
-            var data = request.QueryString;
+            if (context.Request.HttpMethod != "POST")
+                return new Response(404);
 
-            if (!data.HasKeys() || (string.IsNullOrWhiteSpace(data.Get("name")) || string.IsNullOrWhiteSpace(data.Get("capacity"))))
-                return new Result() { Message = "fail data" };
+            var query = context.Request.QueryString;
 
-            if (!int.TryParse(data.Get("capacity"), out int capacity))
-                return new Result() { Message = "fail data" };
+            if (!query.HasKeys() || (string.IsNullOrWhiteSpace(query.Get("name")) || string.IsNullOrWhiteSpace(query.Get("capacity"))))
+                return new Response(400);
+
+            if (!int.TryParse(query.Get("capacity"), out int capacity))
+                return new Response(400, "bad capacity");
 
             var product = new Product
             {
-                Name = data.Get("name"),
+                Name = query.Get("name"),
                 Capacity = capacity
             };
 
-            if (!product.Validate().IsSuccess)
-                return new Result() { Message = "fail validate" };
+            var validate = product.Validate();
 
-            _productRepository.Add(product);
+            if (validate.IsSuccess == false)
+                return new Response(400, validate.Message);
 
-            return new Result(true);
+            return new Response(200, _productRepository.Add(product));
         }
 
-        internal IResult Update(HttpListenerRequest request)
+        internal IResponse Update(HttpListenerContext context)
         {
-            var result = new Result();
+            if (context.Request.HttpMethod != "POST")
+                return new Response(404);
 
-            Output.Write("\r\nВведите id товара: ", ConsoleColor.Yellow);
+            var query = context.Request.QueryString;
 
-            if (!int.TryParse(Console.ReadLine(), out int pid))
-                return new Result("Идентификатор должен быть целым положительным числом");
+            if (!query.HasKeys() || (string.IsNullOrWhiteSpace(query.Get("id")) || string.IsNullOrWhiteSpace(query.Get("name"))))
+
+                if (!int.TryParse(Console.ReadLine(), out int pid))
+                return new Response(400, "Идентификатор должен быть целым положительным числом");
 
             var product = _productRepository.GetById(pid);
 
             if (product == null)
-                return new Result("Товар с идентификатором " + pid + " не найден");
+                return new Response(400, "Товар с идентификатором " + pid + " не найден");
 
             Output.Write("Наименование (" + product.Name + "):");
             string name = Console.ReadLine();
@@ -103,15 +108,15 @@ namespace Shop.Server.Controller
             return result;
         }
 
-        internal IResult Delete(HttpListenerRequest request)
+        internal IResponse Delete(HttpListenerContext context)
         {
-            if (request.HttpMethod != "DELETE")
-                return new Result() { Message = "404" };
+            if (context.Request.HttpMethod != "DELETE")
+                return new Response() { Message = "404" };
 
-            var query = request.QueryString;
+            var query = context.Request.QueryString;
 
             if (!query.HasKeys() || !int.TryParse(query.Get("id"), out int id) || id == 0)
-                return new Result() { Message = "fail data" };
+                return new Response() { Message = "fail data" };
 
             var product = _productRepository.GetById(id);
 

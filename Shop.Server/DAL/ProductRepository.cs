@@ -11,10 +11,11 @@ namespace Shop.Server.DAL
         public int Count() => _items.Count;
         public IEnumerable<Product> All() => _items;
 
-        public void Add(Product entity)
+        public Product Add(Product entity)
         {
             entity.Id = ++_lastInsertedId;
             _items.Add(entity);
+            return entity;
         }
 
         public Product GetById(int id)

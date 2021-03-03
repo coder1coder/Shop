@@ -3,6 +3,6 @@
     public interface IEntity
     {
         public int Id { get; set; }
-        public IResult Validate();
+        public IValidateResult Validate();
     }
 }

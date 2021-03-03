@@ -26,14 +26,14 @@ namespace Shop.Server.Controller
                 "delete" => Delete(request),
                 "place"  => Place(request),
                 "products" => GetProducts(request),
-                _ => new Result() { Message = "404" },
+                _ => new Response() { Message = "404" },
             };
         }
 
-        private string Get(HttpListenerRequest request, int? id)
+        private string Get(HttpListenerContext context)
         {
             if (request.HttpMethod != "GET")
-                return new Result(){ Message = "404" };
+                return new Response(){ Message = "404" };
                 
             return new ActionResult(){}
 
@@ -56,7 +56,7 @@ namespace Shop.Server.Controller
             if (!int.TryParse(Console.ReadLine(), out int scId) || scId > 0)
                 return new Result("Идентификатор витрины должен быть положительным числом");
 
-            Showcase showcase = ShowcaseRepository.GetById(scId);
+            var showcase = _showcaseRepository.GetById(scId);
 
             if (showcase == null || showcase.RemovedAt.HasValue)
                 return new Result("Витрины с идентификатором " + scId + " не найдено");
@@ -92,22 +92,22 @@ namespace Shop.Server.Controller
         private object GetProducts(HttpListenerRequest request)
         {
             if (request.HttpMethod != "GET")
-                return new Result() { Message = "404" };
+                return new Response() { Message = "404" };
 
             var data = request.QueryString;
 
             if (!data.HasKeys() || !int.TryParse(data.Get("id"), out int id) || id < 1)
-                return new Result() { Message = "bad request" };
+                return new Response() { Message = "bad request" };
 
             var showcase = _showcaseRepository.GetById(id);
 
             if (showcase == null || showcase.RemovedAt.HasValue)
-                return new Result() { Message = "Нет витрин с указанным идентификатором" };
+                return new Response() { Message = "Нет витрин с указанным идентификатором" };
 
             var ids = _showcaseRepository.GetShowcaseProductsIds(showcase);
 
             if (ids.Count == 0)
-                return new Result() { Message = "Нет товаров для отображения" };
+                return new Response() { Message = "Нет товаров для отображения" };
 
             foreach (int pId in ids)
             {
@@ -117,7 +117,7 @@ namespace Shop.Server.Controller
                     Output.WriteLine(product.ToString());
             }
 
-            return new Result() { Message = "Нет витрин с указанным идентификатором" };
+            return new Response() { Message = "Нет витрин с указанным идентификатором" };
         }
 
         private object Delete(HttpListenerRequest request)
@@ -193,7 +193,7 @@ namespace Shop.Server.Controller
 
         private object Create(HttpListenerRequest request)
         {
-            var result = new Result();
+            var result = new Response();
             Console.Clear();
             Output.WriteLine("Добавить витрину", ConsoleColor.Yellow);
             Showcase showcase = new Showcase();

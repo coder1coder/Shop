@@ -7,9 +7,9 @@
 
         public override string ToString() => $"[{Id}] {Name} (cap: {Capacity})";
 
-        public override IResult Validate()
+        public override IValidateResult Validate()
         {
-            var result = new Result(true);
+            var result = new ValidateResult(true);
 
             if (string.IsNullOrWhiteSpace(Name))
             {

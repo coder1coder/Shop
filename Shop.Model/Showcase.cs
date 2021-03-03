@@ -11,9 +11,9 @@ namespace Shop.Model
         public DateTime CreatedAt { get; set; }
         public DateTime? RemovedAt { get; set; }
 
-        public override IResult Validate()
+        public override IResponse Validate()
         {
-            IResult result = new Result(true);
+            IResponse result = new Result(true);
 
             if (string.IsNullOrWhiteSpace(Name))
             {

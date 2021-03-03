@@ -18,7 +18,8 @@ namespace Shop.Server
             Console.WriteLine("Ожидание подключений...");
             var context = listener.GetContext();
 
-            var shop = new ShopController();
+            new ProductController().Seed(2);
+            new ShowcaseController().Seed(2);
 
             var absoluteUrl = context.Request.Url.AbsoluteUri.TrimStart('/').Split('/');
 
@@ -32,15 +33,15 @@ namespace Shop.Server
                 switch (controller)
                 {
                     case "products":
-                        responseObject = shop.ProductsController.RouteToAction(action, context.Request);
+                        responseObject = new ProductController().GetResponse(action, context);
                         break;
 
                     case "showcases":
-                        responseObject = shop.ShowcasesController.RouteToAction(action, context.Request);
+                        responseObject = new ShowcaseController().GetResponse(action, context);
                         break;
                 }
             }
-            else responseObject = new Result() { Message = "404" };
+            else responseObject = new Response() { Message = "404" };
 
             var response = JsonConvert.SerializeObject(responseObject);
             var buffer = Encoding.UTF8.GetBytes(response);

@@ -12,6 +12,6 @@ namespace Shop.Server.DAL
         List<int> GetShowcaseProductsIds(Showcase showcase);
         List<ProductShowcase> GetShowcaseProducts(Showcase showcase);
 
-        IResult Place(int showcaseId, Product product, int quantity, decimal cost);
+        IResponse Place(int showcaseId, Product product, int quantity, decimal cost);
     }
 }
