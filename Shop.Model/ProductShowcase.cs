@@ -7,9 +7,9 @@
         public int Quantity { get; set; }
         public decimal Cost { get; set; }
 
-        public override IResponse Validate()
+        public override IValidateResult Validate()
         {
-            IResponse result = new Result(true);
+            var result = new ValidateResult(true);
 
             if (ShowcaseId < 1)
             {

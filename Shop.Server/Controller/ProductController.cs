@@ -6,7 +6,6 @@ namespace Shop.Server.Controller
 {
     internal class ProductController: Controller
     {
-
         internal IResponse GetResponse(string action, HttpListenerContext context)
         {
             return action switch
@@ -19,7 +18,7 @@ namespace Shop.Server.Controller
             };
         }
 
-        private IResponse Get(HttpListenerContext context)
+        internal IResponse Get(HttpListenerContext context)
         {
             if (context.Request.HttpMethod != "GET")
                 return new Response(404);
@@ -61,21 +60,18 @@ namespace Shop.Server.Controller
 
             var query = context.Request.QueryString;
 
-            if (!query.HasKeys() || (string.IsNullOrWhiteSpace(query.Get("id")) || string.IsNullOrWhiteSpace(query.Get("name"))))
+            if (!query.HasKeys() || string.IsNullOrWhiteSpace(query.Get("id")) || !int.TryParse(Console.ReadLine(), out int productId))
+                return new Response(400, "Идентификатор товара должен быть целым положительным числом");
 
-                if (!int.TryParse(Console.ReadLine(), out int pid))
-                return new Response(400, "Идентификатор должен быть целым положительным числом");
+            if (string.IsNullOrWhiteSpace(query.Get("name")))
+                return new Response(400, "Bad request");
 
-            var product = _productRepository.GetById(pid);
+            var product = _productRepository.GetById(productId);
 
             if (product == null)
-                return new Response(400, "Товар с идентификатором " + pid + " не найден");
+                return new Response(400, "Товар с идентификатором " + productId + " не найден");
 
-            Output.Write("Наименование (" + product.Name + "):");
-            string name = Console.ReadLine();
-
-            if (!string.IsNullOrWhiteSpace(name))
-                product.Name = name;
+            product.Name = query.Get("name");
 
             //Не даем возможность менять объем товара размещенного на витрине
             bool placedInShowcase = false;
@@ -89,44 +85,41 @@ namespace Shop.Server.Controller
 
             if (!placedInShowcase)
             {
-                Output.Write("Занимаемый объем (" + product.Capacity + "):");
+                if (string.IsNullOrWhiteSpace(query.Get("capacity")) || !int.TryParse(Console.ReadLine(), out int capacityInt))
+                    return new Response(400, "Bad request");
 
-                if (int.TryParse(Console.ReadLine(), out int capacityInt))
-                    product.Capacity = capacityInt;
+                product.Capacity = capacityInt;
             }
-            else Output.WriteLine("Нельзя изменить объем товара, размещенного на витрине", ConsoleColor.Yellow);
 
             var validateResult = product.Validate();
 
             if (!validateResult.IsSuccess)
-                return validateResult;
+                return new Response(400, validateResult);
 
             _productRepository.Update(product);
-            result.IsSuccess = true;
-
-
-            return result;
+            
+            return new Response(200, product);
         }
 
         internal IResponse Delete(HttpListenerContext context)
         {
             if (context.Request.HttpMethod != "DELETE")
-                return new Response() { Message = "404" };
+                return new Response(404);
 
             var query = context.Request.QueryString;
 
-            if (!query.HasKeys() || !int.TryParse(query.Get("id"), out int id) || id == 0)
-                return new Response() { Message = "fail data" };
+            if (!query.HasKeys() || !int.TryParse(query.Get("id"), out int productId) || productId == 0)
+                return new Response(400, "Bad request params");
 
-            var product = _productRepository.GetById(id);
+            var product = _productRepository.GetById(productId);
 
             if (product == null)
-                return new Result("Товар с идентификатором " + id + " не найден");
+                return new Response(400, "Товар с идентификатором " + productId + " не найден");
 
             _showcaseRepository.TakeOut(product);
-            _productRepository.Remove(id);
+            _productRepository.Remove(productId);
 
-            return new Result(true);
+            return new Response(200);
         }
 
         internal void Seed(int count) => _productRepository.Seed(count);

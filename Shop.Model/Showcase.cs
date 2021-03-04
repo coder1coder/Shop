@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Shop.Model
 {
@@ -11,9 +10,9 @@ namespace Shop.Model
         public DateTime CreatedAt { get; set; }
         public DateTime? RemovedAt { get; set; }
 
-        public override IResponse Validate()
+        public override IValidateResult Validate()
         {
-            IResponse result = new Result(true);
+            var result = new ValidateResult(true);
 
             if (string.IsNullOrWhiteSpace(Name))
             {

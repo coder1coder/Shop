@@ -4,11 +4,12 @@ namespace Shop.Server.Controller
 {
     internal abstract class Controller
     {
-        internal readonly static IShowcaseRepository _showcaseRepository = new ShowcaseRepository();
+        internal static IShowcaseRepository _showcaseRepository;
         internal static IProductRepository _productRepository;
 
         public Controller()
         {
+            _showcaseRepository = new ShowcaseRepository();
             _productRepository = new ProductRepository();
         }
     }
