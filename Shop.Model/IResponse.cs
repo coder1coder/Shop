@@ -1,4 +1,4 @@
-﻿namespace Shop.Server.Model
+﻿namespace Shop.Model
 {
     public interface IResponse
     {

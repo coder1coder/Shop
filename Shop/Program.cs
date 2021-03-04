@@ -60,7 +60,7 @@ namespace Shop
                         break;
                 }
             }
-            while (shop.IsLoggedIn);
+            while (true);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Shop.Server.Model
+namespace Shop.Model
 {
     public class Response: IResponse
     {
