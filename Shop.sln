@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop", "Shop\Shop.csproj", "{6AD9C18E-9FE2-4525-9851-AC1D10971030}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shop.Model", "Shop.Model\Shop.Model.csproj", "{0E7D7194-13C2-471B-B2DA-E09D0FD6FD35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop.Model", "Shop.Model\Shop.Model.csproj", "{0E7D7194-13C2-471B-B2DA-E09D0FD6FD35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shop.Server", "Shop.Server\Shop.Server.csproj", "{7E6E1850-7B92-41EC-8FA4-918E7C4FD3D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop.RESTApi", "Shop.Server\Shop.RESTApi.csproj", "{7E6E1850-7B92-41EC-8FA4-918E7C4FD3D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -14,11 +14,11 @@ namespace Shop.Server
             listener.Prefixes.Add("http://localhost:8888/");
             listener.Start();
 
-            Console.WriteLine("Ожидание подключений...");
-            var context = listener.GetContext();
-
             new ProductController().Seed(2);
             new ShowcaseController().Seed(2);
+
+            Console.WriteLine("Ожидание подключений...");
+            var context = listener.GetContext();
 
             var absoluteUrl = context.Request.Url.AbsoluteUri.TrimStart('/').Split('/');
 
