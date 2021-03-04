@@ -1,4 +1,5 @@
 ﻿using Shop.Model;
+using Shop.Server.Model;
 using System;
 using System.Net;
 

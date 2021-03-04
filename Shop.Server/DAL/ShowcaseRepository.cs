@@ -1,4 +1,5 @@
 ﻿using Shop.Model;
+using Shop.Server.Model;
 using System;
 using System.Collections.Generic;
 
@@ -33,11 +34,12 @@ namespace Shop.Server.DAL
             return count;
         }
 
-        public void Add(Showcase entity)
+        public Showcase Add(Showcase entity)
         {
             entity.Id = ++_lastInsertedId;
             entity.CreatedAt = DateTime.Now;
             _items.Add(entity);
+            return entity;
         }
 
         public Showcase GetById(int id)
@@ -89,17 +91,6 @@ namespace Shop.Server.DAL
 
         public IResponse Place(int showcaseId, Product product, int quantity, decimal cost)
         {
-            var showcase = GetById(showcaseId);
-
-            if (showcase == null)
-                return new Result("Витрина с идентификатором " + showcaseId + " не найдена");
-
-            if (GetShowcaseProductsIds(showcase).Count > 0)
-                return new Result("Витрина уже содержит товар с указанным идентификатором");
-
-            if (showcase.Capacity + (product.Capacity * quantity) > showcase.MaxCapacity)
-                return new Result("Объем витрины не позволяет разместить товар");
-
             var ps = new ProductShowcase(showcaseId, product.Id, quantity, cost)
             {
                 Id = ++_lastProductInsertedId
@@ -107,13 +98,10 @@ namespace Shop.Server.DAL
 
             var validate = ps.Validate();
 
-            if (validate.IsSuccess)
-            {
-                _products.Add(ps);
-                return new Result(true);
-            }
-            else 
-                return validate;
+            if (validate.IsSuccess == false)
+                return new Response(400, validate.Message);
+
+            return new Response(200);
         }
 
         public List<int> GetShowcaseProductsIds(Showcase showcase)

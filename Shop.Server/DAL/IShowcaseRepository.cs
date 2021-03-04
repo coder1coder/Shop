@@ -1,4 +1,5 @@
 ﻿using Shop.Model;
+using Shop.Server.Model;
 using System.Collections.Generic;
 
 namespace Shop.Server.DAL

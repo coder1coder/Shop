@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using Shop.Model;
-using Shop.Server.Controller;
+﻿using Shop.Server.Controller;
+using Shop.Server.Model;
 using System;
 using System.Net;
 using System.Text;
@@ -23,7 +22,7 @@ namespace Shop.Server
 
             var absoluteUrl = context.Request.Url.AbsoluteUri.TrimStart('/').Split('/');
 
-            object responseObject = null;
+            IResponse response = new Response(404);
 
             if (absoluteUrl.Length > 0 && absoluteUrl.Length < 3)
             {
@@ -33,18 +32,16 @@ namespace Shop.Server
                 switch (controller)
                 {
                     case "products":
-                        responseObject = new ProductController().GetResponse(action, context);
+                        response = new ProductController().GetResponse(action, context);
                         break;
 
                     case "showcases":
-                        responseObject = new ShowcaseController().GetResponse(action, context);
+                        response = new ShowcaseController().GetResponse(action, context);
                         break;
                 }
             }
-            else responseObject = new Response() { Message = "404" };
 
-            var response = JsonConvert.SerializeObject(responseObject);
-            var buffer = Encoding.UTF8.GetBytes(response);
+            var buffer = Encoding.UTF8.GetBytes(response.ToJson());
 
             context.Response.ContentType = "application/json";
             context.Response.OutputStream.Write(buffer, 0, buffer.Length);

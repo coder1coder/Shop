@@ -1,218 +1,210 @@
-﻿using Newtonsoft.Json;
-using Shop.Model;
-using Shop.Server.DAL;
-using System;
+﻿using Shop.Model;
+using Shop.Server.Model;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 
 namespace Shop.Server.Controller
 {
     internal class ShowcaseController: Controller
     {
-        public ShowcaseController()
-        {
-
-        }
-
-        public void Seed(int count) => _showcaseRepository.Seed(count);
-
-        internal object RouteToAction(string action, HttpListenerRequest request)
+        internal IResponse GetResponse(string action, HttpListenerContext context)
         {
             return action switch
             {
-                "" => Get(),
-                "create" => Create(request),
-                "update" => Update(request),
-                "delete" => Delete(request),
-                "place"  => Place(request),
-                "products" => GetProducts(request),
-                _ => new Response() { Message = "404" },
+                "" => Get(context),
+                "create" => Create(context),
+                "update" => Update(context),
+                "delete" => Delete(context),
+                "place" => Place(context),
+                "products" => GetPlacementProducts(context),
+                _ => new Response(404)
             };
         }
 
-        private string Get(HttpListenerContext context)
+        internal IResponse Get(HttpListenerContext context)
         {
-            if (request.HttpMethod != "GET")
-                return new Response(){ Message = "404" };
-                
-            return new ActionResult(){}
+            if (context.Request.HttpMethod != "GET")
+                return new Response(404);
 
-            JsonConvert.SerializeObject()
+            var query = context.Request.QueryString;
+
+            if (query.HasKeys() && !string.IsNullOrWhiteSpace(query.Get("id")) && int.TryParse(query.Get("id"), out int showcaseId))
+                return new Response(200, _showcaseRepository.GetById(showcaseId));
+            else
+                return new Response(200, _showcaseRepository.All().Where(x => x.RemovedAt.HasValue == false));
         }
 
-        private object Place(HttpListenerRequest request)
+        internal IResponse Create(HttpListenerContext context)
         {
-            Console.Clear();
+            if (context.Request.HttpMethod != "POST")
+                return new Response(404);
 
-            if (_showcaseRepository.ActivesCount() == 0 || _productRepository.Count() == 0)
-                return new Result("Нет товара и витрин для отображения");
+            var query = context.Request.QueryString;
 
-            Output.Write("Размещение товара на витрине", ConsoleColor.Yellow);
+            if (!query.HasKeys())
+                return new Response(400, "Bad request");
 
-            PrintShowcasesAction(false);
+            if (string.IsNullOrWhiteSpace(query.Get("name")) || string.IsNullOrWhiteSpace(query.Get("max_capacity")))
+                return new Response(400, "Bad request params");
 
-            Output.Write("\r\nВведите Id витрины: ");
+            if (!int.TryParse(query.Get("max_capacity"), out int maxCapacity))
+                return new Response(400, "Bad request params");
 
-            if (!int.TryParse(Console.ReadLine(), out int scId) || scId > 0)
-                return new Result("Идентификатор витрины должен быть положительным числом");
-
-            var showcase = _showcaseRepository.GetById(scId);
-
-            if (showcase == null || showcase.RemovedAt.HasValue)
-                return new Result("Витрины с идентификатором " + scId + " не найдено");
-
-            Console.Clear();
-            PrintProductsAction(false);
-
-            Output.Write("\r\nВведите Id товара: ");
-
-            if (!int.TryParse(Console.ReadLine(), out int pId) || pId > 0)
-                return new Result("Идентификатор товара должен быть положительным числом");
-
-            var product = ProductRepository.GetById(pId);
-
-            if (product == null)
-                return new Result("Товара с идентификатором " + pId + " не найдено");
-
-            Output.Write("Выбран товар ");
-            Output.WriteLine(product.Name, ConsoleColor.Cyan);
-
-            Output.Write("Введите количество: ");
-            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity > 0)
-                return new Result("Количество товара должно быть положительным числом");
-
-            Output.Write("Введите стоимость: ");
-
-            if (!int.TryParse(Console.ReadLine(), out int cost) || cost > 0)
-                return new Result("Стоимость товара должна быть положительным числом");
-
-            return ShowcaseRepository.Place(showcase.Id, product, quantity, cost);
-        }
-
-        private object GetProducts(HttpListenerRequest request)
-        {
-            if (request.HttpMethod != "GET")
-                return new Response() { Message = "404" };
-
-            var data = request.QueryString;
-
-            if (!data.HasKeys() || !int.TryParse(data.Get("id"), out int id) || id < 1)
-                return new Response() { Message = "bad request" };
-
-            var showcase = _showcaseRepository.GetById(id);
-
-            if (showcase == null || showcase.RemovedAt.HasValue)
-                return new Response() { Message = "Нет витрин с указанным идентификатором" };
-
-            var ids = _showcaseRepository.GetShowcaseProductsIds(showcase);
-
-            if (ids.Count == 0)
-                return new Response() { Message = "Нет товаров для отображения" };
-
-            foreach (int pId in ids)
+            var showcase = new Showcase
             {
-                var product = _showcaseRepository.GetById(pId);
+                Name = query.Get("name"),
+                MaxCapacity = maxCapacity
+            };
 
-                if (product != null)
-                    Output.WriteLine(product.ToString());
+            var validateResult = showcase.Validate();
+
+            if (!validateResult.IsSuccess)
+                return new Response(400, validateResult);
+
+            return new Response(200, _showcaseRepository.Add(showcase));
+        }
+
+        internal IResponse Update(HttpListenerContext context)
+        {
+            if (context.Request.HttpMethod != "POST")
+                return new Response(404);
+
+            var query = context.Request.QueryString;
+
+            if (!query.HasKeys())
+                return new Response(400, "Bad request params");
+
+            if (string.IsNullOrWhiteSpace(query.Get("id")) || !int.TryParse(query.Get("id"), out int showcaseId))
+                return new Response(400, "Bad request params");
+
+            var showcase = _showcaseRepository.GetById(showcaseId);
+
+            if (showcase == null || showcase.RemovedAt.HasValue)
+                return new Response(400, "Bad request params");
+
+            if (string.IsNullOrWhiteSpace(query.Get("name")))
+                return new Response(400, "Bad request params");
+
+            showcase.Name = query.Get("name");
+
+            if (!string.IsNullOrWhiteSpace(query.Get("max_capacity")))
+            {
+                 if (!int.TryParse(query.Get("max_capacity"), out int maxCapacity))
+                    return new Response(400, "Bad request params");
+
+                //Чекаем изменение объема в меньшую сторону
+                var productShowcases = _showcaseRepository.GetShowcaseProducts(showcase);
+                int showcaseFullness = _productRepository.ProductsCapacity(productShowcases);
+
+                if (showcaseFullness > maxCapacity)
+                    return new Response(400, "Невозможно установить заданный объем, объем размещенного товара превышеает значение");
+
+                showcase.MaxCapacity = maxCapacity;
             }
 
-            return new Response() { Message = "Нет витрин с указанным идентификатором" };
+            var validateResult = showcase.Validate();
+
+            if (!validateResult.IsSuccess)
+                return new Response(400, validateResult);
+
+            _showcaseRepository.Update(showcase);
+
+            return new Response(200, showcase);
         }
 
-        private object Delete(HttpListenerRequest request)
+        internal IResponse Delete(HttpListenerContext context)
         {
-            Console.Clear();
-            Output.WriteLine("Удалить витрину", ConsoleColor.Cyan);
+            if (context.Request.HttpMethod != "DELETE")
+                return new Response(404);
 
-            if (_show.ActivesCount() == 0)
-                return new Result("Нет витрин для удаления");
+            var query = context.Request.QueryString;
 
-            PrintShowcasesAction(false);
+            if (query.HasKeys() == false)
+                return new Response(400, "Bad request params");
 
-            Output.Write("\r\nВведите Id витрины для удаления: ", ConsoleColor.Yellow);
-            if (!int.TryParse(Console.ReadLine(), out int id) || id > 0)
-                return new Result("Идентификатор должен быть ценым положительным числом");
+            if (string.IsNullOrWhiteSpace(query.Get("id")) || !int.TryParse(query.Get("id"), out int showcaseId))
+                return new Response(400, "Bad showcase id");
 
-            Showcase showcase = ShowcaseRepository.GetById(id);
+            var showcase = _showcaseRepository.GetById(showcaseId);
 
             if (showcase == null)
-                return new Result("Витрина не найдена");
+                return new Response(400, "Bad showcase id");
 
-            if (ShowcaseRepository.GetShowcaseProductsIds(showcase).Count != 0)
-                return new Result("Невозможно удалить витрину, на которой размещены товары");
+            if (_showcaseRepository.GetShowcaseProductsIds(showcase).Count != 0)
+                return new Response(400, "Невозможно удалить витрину, на которой размещены товары");
 
-            ShowcaseRepository.Remove(showcase.Id);
-            return new Result(true);
+            _showcaseRepository.Remove(showcase.Id);
+            return new Response(200);
         }
 
-        private object Update(HttpListenerRequest request)
+        internal IResponse Place(HttpListenerContext context)
         {
-            PrintShowcasesAction(false);
+            if (context.Request.HttpMethod != "POST")
+                return new Response(404);
 
-            Output.Write("\r\nВведите Id витрины: ", ConsoleColor.Yellow);
+            var query = context.Request.QueryString;
 
-            if (!int.TryParse(Console.ReadLine(), out int id))
-                return new Result("Идентификатор должен быть целым положительным числом");
+            if (query.HasKeys() == false)
+                return new Response(400, "Bad request params");
 
-            Showcase showcase = ShowcaseRepository.GetById(id);
+            if (!int.TryParse(query.Get("showcase_id"), out int showcaseId) || showcaseId < 1)
+                return new Response(400, "Bad showcase id");
+
+            var showcase = _showcaseRepository.GetById(showcaseId);
 
             if (showcase == null || showcase.RemovedAt.HasValue)
-                return new Result("Витрина с идентификатором " + id + " не найдена");
+                return new Response(400, "Витрины с идентификатором " + showcaseId + " не найдено");
 
-            Output.Write("Наименование (" + showcase.Name + "):");
-            string name = Console.ReadLine();
+            if (!int.TryParse(query.Get("product_id"), out int productId) || productId < 1)
+                return new Response(400, "Идентификатор товара должен быть положительным числом");
 
-            if (!string.IsNullOrWhiteSpace(name))
-                showcase.Name = name;
+            var product = _productRepository.GetById(productId);
 
-            Output.Write("Максимально допустимый объем витрины (" + showcase.MaxCapacity + "):");
+            if (product == null)
+                return new Response(400, "Товара с идентификатором " + productId + " не найдено");
 
-            //Если объем задан корректно, то применяем, в противном случае оставляем как было
-            if (!int.TryParse(Console.ReadLine(), out int capacityInt))
-                return new Result("Объем должен быть целым положительным числом");
+            if (!int.TryParse(query.Get("quantity"), out int quantity) || quantity < 1)
+                return new Response(400, "Количество товара должно быть положительным числом");
 
-            //Чекаем изменение объема в меньшую сторону
-            List<ProductShowcase> productShowcases = ShowcaseRepository.GetShowcaseProducts(showcase);
-            int showcaseFullness = ProductRepository.ProductsCapacity(productShowcases);
+            if (!int.TryParse(query.Get("cost"), out int cost) || cost < 1)
+                return new Response(400, "Стоимость товара должна быть положительным числом");
 
-            if (showcaseFullness > capacityInt)
-                return new Result("Невозможно установить заданный объем, объем размещенного товара превышеает значение");
-
-            showcase.MaxCapacity = capacityInt;
-
-            var validateResult = showcase.Validate();
-
-            if (!validateResult.IsSuccess)
-                return validateResult;
-
-            ShowcaseRepository.Update(showcase);
-
-            return new Result(true);
+            return _showcaseRepository.Place(showcaseId, product, quantity, cost);
         }
 
-        private object Create(HttpListenerRequest request)
+        internal IResponse GetPlacementProducts(HttpListenerContext context)
         {
-            var result = new Response();
-            Console.Clear();
-            Output.WriteLine("Добавить витрину", ConsoleColor.Yellow);
-            Showcase showcase = new Showcase();
-            Output.Write("Наименование: ");
-            showcase.Name = Console.ReadLine();
-            Output.Write("Максимально допустимый объем витрины: ");
+            if (context.Request.HttpMethod != "GET")
+                return new Response(404);
 
-            if (int.TryParse(Console.ReadLine(), out int maxCapacity))
-                showcase.MaxCapacity = maxCapacity;
+            var data = context.Request.QueryString;
 
-            var validateResult = showcase.Validate();
+            if (data.HasKeys() == false)
+                return new Response(400, "Bad request params");
 
-            if (!validateResult.IsSuccess)
-                return validateResult;
+            if (!int.TryParse(data.Get("id"), out int showcaseId) || showcaseId < 1)
+                return new Response(400, "Bad request params");
 
-            _repository.Add(showcase);
-            result.IsSuccess = true;
+            var showcase = _showcaseRepository.GetById(showcaseId);
 
-            return result;
+            if (showcase == null || showcase.RemovedAt.HasValue)
+                return new Response(400, "Нет витрин с указанным идентификатором");
+
+            var products_ids = _showcaseRepository.GetShowcaseProductsIds(showcase);
+
+            var list = new List<Product>();
+
+            foreach (int productId in products_ids)
+            {
+                var product = _productRepository.GetById(productId);
+                if (product != null)
+                    list.Add(product);
+            }
+
+            return new Response(200, list);
         }
+
+        internal void Seed(int count) => _showcaseRepository.Seed(count);
     }
 }
