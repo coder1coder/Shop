@@ -168,7 +168,7 @@ namespace Shop.Controller
             PrintProductsAction(false);
 
             Output.Write("\r\nВведите Id товара: ", ConsoleColor.Yellow);
-            if (!int.TryParse(Console.ReadLine(), out int id) || id > 0)
+            if (!int.TryParse(Console.ReadLine(), out int id) || id < 1)
                 return new Result("Идентификатор должен быть целым положительным числом");
 
             var product = ProductRepository.GetById(id);
@@ -274,7 +274,7 @@ namespace Shop.Controller
             PrintShowcasesAction(false);
 
             Output.Write("\r\nВведите Id витрины для удаления: ", ConsoleColor.Yellow);
-            if (!int.TryParse(Console.ReadLine(), out int id) || id > 0)
+            if (!int.TryParse(Console.ReadLine(), out int id) || id < 1)
                 return new Result("Идентификатор должен быть ценым положительным числом");
 
             Showcase showcase = ShowcaseRepository.GetById(id);
