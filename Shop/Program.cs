@@ -35,7 +35,7 @@ namespace Shop
                         switch (menu.Current.Children[menu.SelectedIndex])
                         {
                             case ActionMenuItem action:
-                                shop.RouteTo(action.Command);
+                                //shop.RouteTo(action.Command);
                                 break;
                             case IContainerMenuItem container:
                                 menu.Expand(container);
