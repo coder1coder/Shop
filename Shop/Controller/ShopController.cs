@@ -80,54 +80,26 @@ namespace Shop.ConsoleClient.Controller
         {
             PrintProductsAction(false);
 
-            var result = new Result();
-
             Output.Write("\r\nВведите id товара: ", ConsoleColor.Yellow);
 
-            if (!int.TryParse(Console.ReadLine(), out int pid))
-                return new Result("Идентификатор должен быть целым положительным числом");
+            var productId = Console.ReadLine();
 
-            var product = ProductRepository.GetById(pid);
-
-            if (product == null)
-                return new Result("Товар с идентификатором " + pid + " не найден");
+            var response = Client.Get("/products/get?id={0}", productId);
 
             Output.Write("Наименование (" + product.Name + "):");
             string name = Console.ReadLine();
 
-            if (!string.IsNullOrWhiteSpace(name))
-                product.Name = name;
-
-            //Не даем возможность менять объем товара размещенного на витрине
-            bool placedInShowcase = false;
-
-            foreach (Showcase showcase in ShowcaseRepository.All())
-                if (ShowcaseRepository.GetShowcaseProductsIds(showcase).Count > 0)
-                {
-                    placedInShowcase = true;
-                    break;
-                }
-
-            if (!placedInShowcase)
-            {
-                Output.Write("Занимаемый объем (" + product.Capacity + "):");
-
-                if (int.TryParse(Console.ReadLine(), out int capacityInt))
-                    product.Capacity = capacityInt;
-            }
-            else Output.WriteLine("Нельзя изменить объем товара, размещенного на витрине", ConsoleColor.Yellow);
-
+            Output.Write("Занимаемый объем (" + product.Capacity + "):");
+            var capacity = Console.ReadLine();
+            
             var validateResult = product.Validate();
 
             if (!validateResult.Success)
                 return validateResult;
 
-            ProductRepository.Update(product);
-            result.Success = true;
-
-
-            return result;
+            return Client.Get("/products/update?id={0}&name={1}&capacity={2}", productId, name, capacity);
         }
+    }
 
         /// <summary>
         /// Вызывает сценарий удаления товара
