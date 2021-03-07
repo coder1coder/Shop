@@ -25,12 +25,7 @@ namespace Shop.WebApi.Controller
             if (productDTO == null)
                 return BadRequest();
 
-            var product = new Product()
-            {
-                Name = productDTO.Name,
-                Capacity = productDTO.Capacity,
-                Cost = productDTO.Cost
-            };
+            var product = Product.FromDTO(productDTO);
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -58,13 +53,15 @@ namespace Shop.WebApi.Controller
         }
 
         [HttpPut]
-        public async Task<ActionResult<Product>> Update(Product product)
+        public async Task<ActionResult<Product>> Update(ProductDTO productDTO)
         {
-            if (product == null)
+            if (productDTO == null)
                 return BadRequest();
 
-            if (_context.Products.Any(x => x.Id == product.Id) == false)
+            if (_context.Products.Any(x => x.Id == productDTO.Id) == false)
                 return NotFound();
+
+            var product =  Product.FromDTO(productDTO);
 
             _context.Update(product);
 

@@ -10,5 +10,21 @@ namespace Shop.WebApi.Model
         public int Cost { get; set; }
 
         public ICollection<Showcase> Showcases { get; set; }
+
+        public Product()
+        {
+
+        }
+
+        public static Product FromDTO(ProductDTO productDTO)
+        {
+            return new Product()
+            {
+                Id = productDTO.Id,
+                Name = productDTO.Name,
+                Capacity = productDTO.Capacity,
+                Cost = productDTO.Cost
+            };
+        }
     }
 }

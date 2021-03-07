@@ -42,17 +42,17 @@ namespace Shop.WebApi.Controller
 
             return CreatedAtAction(nameof(Get), new { id = showcase.Id }, showcase);
         }
-        
+
         /// <summary>
         /// Get all items
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Showcase>>> Get()
+        public async Task<ActionResult<IEnumerable<Showcase>>> Get([FromQuery] bool active = true)
         {
             return await _context
                 .Showcases
-                .Where(x=>x.RemovedAt.HasValue == false)
+                .Where(x=>x.RemovedAt.HasValue == !active)
                 .Include(x=>x.Products)
                 .ToListAsync();
         }
@@ -63,7 +63,7 @@ namespace Shop.WebApi.Controller
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<IEnumerable<Showcase>>> Get(long id)
+        public async Task<ActionResult<IEnumerable<Showcase>>> Get([FromRoute]long id)
         {
             var showcase = await _context
                 .Showcases
