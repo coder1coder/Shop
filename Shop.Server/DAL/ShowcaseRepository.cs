@@ -1,5 +1,4 @@
 ﻿using Shop.Model;
-using Shop.Server.Model;
 using System;
 using System.Collections.Generic;
 
@@ -89,7 +88,7 @@ namespace Shop.Server.DAL
             }
         }
 
-        public IResponse Place(int showcaseId, Product product, int quantity, decimal cost)
+        public IResponse Place(int showcaseId, Showcase product, int quantity, decimal cost)
         {
             var ps = new ProductShowcase(showcaseId, product.Id, quantity, cost)
             {
@@ -113,7 +112,7 @@ namespace Shop.Server.DAL
 
             return ids;
         }
-        public void TakeOut(Product product)
+        public void TakeOut(Showcase product)
         {
             for (var i = 0; i < _products.Count; i++)
             {

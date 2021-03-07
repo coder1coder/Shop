@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Shop.Server.DAL
 {
-    interface IProductRepository : IRepository<Product>
+    interface IProductRepository : IRepository<Showcase>
     {
         int ProductsCapacity(List<ProductShowcase> productsShowcase);
     }

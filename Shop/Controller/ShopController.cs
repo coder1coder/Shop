@@ -226,95 +226,95 @@ namespace Shop.ConsoleClient.Controller
         /// Вызывает сценарий размещения товара на витрине
         /// </summary>
         /// <returns></returns>
-        IResponse PlaceProductAction()
-        {
-            Console.Clear();
+        //IResponse PlaceProductAction()
+        //{
+        //    Console.Clear();
 
-            if (ShowcaseRepository.ActivesCount() == 0 || ProductRepository.Count() == 0)
-                return new Result("Нет товара и витрин для отображения");
+        //    if (ShowcaseRepository.ActivesCount() == 0 || ProductRepository.Count() == 0)
+        //        return new Result("Нет товара и витрин для отображения");
 
-            Output.Write("Размещение товара на витрине", ConsoleColor.Yellow);
+        //    Output.Write("Размещение товара на витрине", ConsoleColor.Yellow);
 
-            PrintShowcasesAction(false);
+        //    PrintShowcasesAction(false);
 
-            Output.Write("\r\nВведите Id витрины: ");
+        //    Output.Write("\r\nВведите Id витрины: ");
 
-            if (!int.TryParse(Console.ReadLine(), out int scId) || scId > 0)
-                return new Result("Идентификатор витрины должен быть положительным числом");
+        //    if (!int.TryParse(Console.ReadLine(), out int scId) || scId > 0)
+        //        return new Result("Идентификатор витрины должен быть положительным числом");
 
-            Showcase showcase = ShowcaseRepository.GetById(scId);
+        //    Showcase showcase = ShowcaseRepository.GetById(scId);
 
-            if (showcase == null || showcase.RemovedAt.HasValue)
-                return new Result("Витрины с идентификатором " + scId + " не найдено");
+        //    if (showcase == null || showcase.RemovedAt.HasValue)
+        //        return new Result("Витрины с идентификатором " + scId + " не найдено");
 
-            Console.Clear();
-            PrintProductsAction(false);
+        //    Console.Clear();
+        //    PrintProductsAction(false);
 
-            Output.Write("\r\nВведите Id товара: ");
+        //    Output.Write("\r\nВведите Id товара: ");
 
-            if (!int.TryParse(Console.ReadLine(), out int pId) || pId > 0)
-                return new Result("Идентификатор товара должен быть положительным числом");
+        //    if (!int.TryParse(Console.ReadLine(), out int pId) || pId > 0)
+        //        return new Result("Идентификатор товара должен быть положительным числом");
 
-            var product = ProductRepository.GetById(pId);
+        //    var product = ProductRepository.GetById(pId);
 
-            if (product == null)
-                return new Result("Товара с идентификатором " + pId + " не найдено");
+        //    if (product == null)
+        //        return new Result("Товара с идентификатором " + pId + " не найдено");
 
-            Output.Write("Выбран товар ");
-            Output.WriteLine(product.Name, ConsoleColor.Cyan);
+        //    Output.Write("Выбран товар ");
+        //    Output.WriteLine(product.Name, ConsoleColor.Cyan);
 
-            Output.Write("Введите количество: ");
-            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity > 0)
-                return new Result("Количество товара должно быть положительным числом");
+        //    Output.Write("Введите количество: ");
+        //    if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity > 0)
+        //        return new Result("Количество товара должно быть положительным числом");
 
-            Output.Write("Введите стоимость: ");
+        //    Output.Write("Введите стоимость: ");
 
-            if (!int.TryParse(Console.ReadLine(), out int cost) || cost > 0)
-                return new Result("Стоимость товара должна быть положительным числом");
+        //    if (!int.TryParse(Console.ReadLine(), out int cost) || cost > 0)
+        //        return new Result("Стоимость товара должна быть положительным числом");
 
-            return ShowcaseRepository.Place(showcase.Id, product, quantity, cost);
+        //    return ShowcaseRepository.Place(showcase.Id, product, quantity, cost);
         }
 
         /// <summary>
         /// Вызывает сценарий отображения всех товаров
         /// </summary>
         /// <returns></returns>
-        void PrintProductsAction(bool waitPressKey = true)
-        {
-            Console.Clear();
+        //void PrintProductsAction(bool waitPressKey = true)
+        //{
+        //    Console.Clear();
 
-            string json = Client.Get("/products/get");
+        //    string json = Client.Get("/products/get");
 
-            dynamic response = JsonConvert.DeserializeObject(json);
+        //    dynamic response = JsonConvert.DeserializeObject(json);
 
-            if (response.error)
-            {
+        //    if (response.error)
+        //    {
 
-            }
+        //    }
 
-            if (response.StatusCode == 200)
-            {
+        //    if (response.StatusCode == 200)
+        //    {
 
-            } 
-            else
-            {
-                response.
-            }
+        //    } 
+        //    else
+        //    {
+        //        //response.
+        //    }
 
 
-            if (ProductRepository.Count() == 0)
-            {
-                Output.WriteLine("Нет товаров для отображения");
-                Console.ReadKey();
-                return;
-            }
+        //    if (ProductRepository.Count() == 0)
+        //    {
+        //        Output.WriteLine("Нет товаров для отображения");
+        //        Console.ReadKey();
+        //        return;
+        //    }
 
-            Output.WriteLine("Доступные товары", ConsoleColor.Cyan);
-            foreach (Product product in ProductRepository.All())
-                Output.WriteLine(product.ToString());
+        //    Output.WriteLine("Доступные товары", ConsoleColor.Cyan);
+        //    foreach (Showcase product in ProductRepository.All())
+        //        Output.WriteLine(product.ToString());
 
-            if (waitPressKey)
-                Console.ReadKey();
+        //    if (waitPressKey)
+        //        Console.ReadKey();
         }
 
         /// <summary>

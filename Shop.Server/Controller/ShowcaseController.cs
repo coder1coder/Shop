@@ -1,5 +1,4 @@
 ﻿using Shop.Model;
-using Shop.Server.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -193,7 +192,7 @@ namespace Shop.Server.Controller
 
             var products_ids = _showcaseRepository.GetShowcaseProductsIds(showcase);
 
-            var list = new List<Product>();
+            var list = new List<Showcase>();
 
             foreach (int productId in products_ids)
             {

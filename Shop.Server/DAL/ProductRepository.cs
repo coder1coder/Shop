@@ -5,20 +5,20 @@ namespace Shop.Server.DAL
 {
     class ProductRepository : IProductRepository
     {
-        readonly List<Product> _items = new List<Product>();
+        readonly List<Showcase> _items = new List<Showcase>();
         int _lastInsertedId = 0;
 
         public int Count() => _items.Count;
-        public IEnumerable<Product> All() => _items;
+        public IEnumerable<Showcase> All() => _items;
 
-        public Product Add(Product entity)
+        public Showcase Add(Showcase entity)
         {
             entity.Id = ++_lastInsertedId;
             _items.Add(entity);
             return entity;
         }
 
-        public Product GetById(int id)
+        public Showcase GetById(int id)
         {
             for (var i = 0; i < _items.Count; i++)
                 if (_items[i].Id.Equals(id))
@@ -37,7 +37,7 @@ namespace Shop.Server.DAL
                 }
         }
 
-        public void Update(Product entity)
+        public void Update(Showcase entity)
         {
             for (var i = 0; i < _items.Count; i++)
             {
@@ -53,7 +53,7 @@ namespace Shop.Server.DAL
         {
             for (var i = 0; i < count; i++)
             {
-                _items.Add(new Product()
+                _items.Add(new Showcase()
                 {
                     Id = ++_lastInsertedId,
                     Name = "Товар " + (i + 1),

@@ -1,6 +1,4 @@
 ﻿using Shop.Model;
-using Shop.Server.Model;
-using System;
 using System.Net;
 
 namespace Shop.Server.Controller
@@ -40,7 +38,7 @@ namespace Shop.Server.Controller
             if (!int.TryParse(query.Get("capacity"), out int capacity))
                 return new Response(400, "bad capacity");
 
-            var product = new Product
+            var product = new Showcase
             {
                 Name = query.Get("name"),
                 Capacity = capacity
@@ -61,7 +59,7 @@ namespace Shop.Server.Controller
 
             var query = context.Request.QueryString;
 
-            if (!query.HasKeys() || string.IsNullOrWhiteSpace(query.Get("id")) || !int.TryParse(Console.ReadLine(), out int productId))
+            if (!query.HasKeys() || string.IsNullOrWhiteSpace(query.Get("id")) || !int.TryParse(query.Get("id"), out int productId))
                 return new Response(400, "Идентификатор товара должен быть целым положительным числом");
 
             if (string.IsNullOrWhiteSpace(query.Get("name")))
@@ -86,7 +84,7 @@ namespace Shop.Server.Controller
 
             if (!placedInShowcase)
             {
-                if (string.IsNullOrWhiteSpace(query.Get("capacity")) || !int.TryParse(Console.ReadLine(), out int capacityInt))
+                if (string.IsNullOrWhiteSpace(query.Get("capacity")) || !int.TryParse(query.Get("capacity"), out int capacityInt))
                     return new Response(400, "Bad request");
 
                 product.Capacity = capacityInt;

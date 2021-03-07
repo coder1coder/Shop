@@ -1,5 +1,5 @@
-﻿using Shop.Server.Controller;
-using Shop.Server.Model;
+﻿using Shop.Model;
+using Shop.Server.Controller;
 using System;
 using System.Net;
 using System.Text;

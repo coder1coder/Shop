@@ -9,10 +9,10 @@ namespace Shop.Server.DAL
         int ActivesCount();
         int RemovedCount();
 
-        void TakeOut(Product product);
+        void TakeOut(Showcase product);
         List<int> GetShowcaseProductsIds(Showcase showcase);
         List<ProductShowcase> GetShowcaseProducts(Showcase showcase);
 
-        IResponse Place(int showcaseId, Product product, int quantity, decimal cost);
+        IResponse Place(int showcaseId, Showcase product, int quantity, decimal cost);
     }
 }
