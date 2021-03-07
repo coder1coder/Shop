@@ -1,7 +1,7 @@
 ﻿using Shop.Model;
 using System.Net;
 
-namespace Shop.Server.Controller
+namespace Shop.RESTApi.Controller
 {
     internal class ProductController: Controller
     {

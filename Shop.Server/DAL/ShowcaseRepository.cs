@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Shop.Server.DAL
+namespace Shop.RESTApi.DAL
 {
     class ShowcaseRepository : IShowcaseRepository
     {

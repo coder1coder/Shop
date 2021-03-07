@@ -20,7 +20,7 @@ namespace Shop.WebApi
                 try
                 {
                     var context = services.GetRequiredService<DatabaseContext>();
-                    context.Database.EnsureDeleted();
+                    
                     context.Database.EnsureCreated();
 
                     if (context.Products.Any() == false)

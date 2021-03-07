@@ -1,10 +1,10 @@
 ﻿using Shop.Model;
-using Shop.Server.Controller;
+using Shop.RESTApi.Controller;
 using System;
 using System.Net;
 using System.Text;
 
-namespace Shop.Server
+namespace Shop.RESTApi
 {
     class Program
     {

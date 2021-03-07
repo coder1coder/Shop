@@ -1,6 +1,6 @@
-﻿using Shop.Server.DAL;
+﻿using Shop.RESTApi.DAL;
 
-namespace Shop.Server.Controller
+namespace Shop.RESTApi.Controller
 {
     internal abstract class Controller
     {

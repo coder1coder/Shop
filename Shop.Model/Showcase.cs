@@ -6,7 +6,7 @@ namespace Shop.Model
     {
         public string Name { get; set; }
         public int MaxCapacity { get; set; }
-        public int Capacity { get; private set; }
+        public int Capacity { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? RemovedAt { get; set; }
 

@@ -19,6 +19,11 @@ namespace Shop.WebApi.Controller
             _context = context;
         }
 
+        /// <summary>
+        /// Create new showcase
+        /// </summary>
+        /// <param name="showcaseDTO"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<Showcase>> Create([FromBody] ShowcaseDTO showcaseDTO)
         {
@@ -37,20 +42,106 @@ namespace Shop.WebApi.Controller
 
             return CreatedAtAction(nameof(Get), new { id = showcase.Id }, showcase);
         }
+        
+        /// <summary>
+        /// Get all items
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Showcase>>> Get()
+        {
+            return await _context
+                .Showcases
+                .Where(x=>x.RemovedAt.HasValue == false)
+                .Include(x=>x.Products)
+                .ToListAsync();
+        }
 
+        /// <summary>
+        /// Get one entity
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<IEnumerable<Showcase>>> Get(long id)
+        {
+            var showcase = await _context
+                .Showcases
+                .Where(x => x.RemovedAt.HasValue == false)
+                .Include(x => x.Products)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (showcase == null)
+                return BadRequest("Showcase does not exist");
+
+            return Ok(showcase);
+        }
+        
+        /// <summary>
+        /// Update entity
+        /// </summary>
+        /// <param name="showcaseDTO"></param>
+        /// <returns></returns>
+        [HttpPut] 
+        public async Task<ActionResult<Showcase>> Update([FromBody]ShowcaseDTO showcaseDTO)
+        {
+            if (showcaseDTO == null)
+                return BadRequest();
+
+            if (_context.Showcases.Any(x => x.Id == showcaseDTO.Id) == false)
+                return NotFound("Showcase does not exist");
+
+            _context.Update(showcaseDTO);
+
+            await _context.SaveChangesAsync();
+            return Ok(showcaseDTO);
+        }
+
+        /// <summary>
+        /// Remove entity
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult<Showcase>> Delete(long id)
+        {
+            var showcase = await _context
+                .Showcases
+                .Include(x=>x.Products)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (showcase == null)
+                return NotFound("Showcase does not exist");
+
+            if (showcase.Products.Count() > 0)
+                return BadRequest("Can't remove. Showcase contain products.");
+
+            showcase.RemovedAt = DateTime.Now;
+            //_context.Showcases.Remove(showcase);
+
+            await _context.SaveChangesAsync();
+            return Ok(showcase);
+        }
+
+        /// <summary>
+        /// Place product into showcase
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="productId"></param>
+        /// <returns></returns>
         [HttpPost("{id:int}/place/{productId:int}")]
         public async Task<ActionResult<Showcase>> Place(long id, long productId)
         {
             var showcase = _context
                 .Showcases
-                .Include("Products")
+                .Include(x => x.Products)
                 .FirstOrDefault(x => x.Id == id);
 
             if (showcase == null)
                 return BadRequest("Showcase does not exist");
 
-            var product = _context.Products.FirstOrDefault(x => x.Id == productId); 
-            
+            var product = _context.Products.FirstOrDefault(x => x.Id == productId);
+
             if (product == null)
                 return BadRequest("Product does not exist");
 
@@ -66,75 +157,40 @@ namespace Shop.WebApi.Controller
             return Ok(showcase);
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Showcase>>> Get()
+        /// <summary>
+        /// Take out product from showcase
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        [HttpPost("{id:int}/takeout/{productId:int}")]
+        public async Task<ActionResult<Showcase>> TakeOut(long id, long productId)
         {
-            return await _context
+            var showcase = _context
                 .Showcases
-                .ToListAsync();
-        }
-
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<IEnumerable<Showcase>>> Get(long id)
-        {
-            var showcase = await _context.Showcases.FirstOrDefaultAsync(x => x.Id == id);
+                .Include(x => x.Products)
+                .Where(x=>x.Products.Any(p=>p.Id == productId))                
+                .FirstOrDefault(x => x.Id == id);
 
             if (showcase == null)
-                return BadRequest("Showcase does not exist");
+                return BadRequest("Showcase with this product does not exist");
+
+            var product = _context.Products.FirstOrDefault(x => x.Id == productId);
+
+            if (product == null)
+                return BadRequest("Product does not exist");
+
+            if (showcase.Products != null && showcase.Products.Any(x => x.Id == product.Id))
+                return BadRequest("Product already exist in showcase");
+
+            _context.Update(showcase);
+
+            showcase.Products.Add(product);
+
+            await _context.SaveChangesAsync();
 
             return Ok(showcase);
         }
 
-        [HttpPut]
-        public async Task<ActionResult<Showcase>> Update(ShowcaseDTO showcaseDTO)
-        {
-            if (showcaseDTO == null)
-                return BadRequest();
-
-            if (_context.Showcases.Any(x => x.Id == showcaseDTO.Id) == false)
-                return NotFound("Showcase does not exist");
-
-            _context.Update(showcaseDTO);
-
-            await _context.SaveChangesAsync();
-            return Ok(showcaseDTO);
-        }
-
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult<Showcase>> Delete(long id)
-        {
-            var showcase = await _context.Showcases.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (showcase == null)
-                return NotFound("Showcase does not exist");
-
-            _context.Showcases.Remove(showcase);
-            await _context.SaveChangesAsync();
-            return Ok(showcase);
-        }
-
-        [HttpPost("{count}")]
-        public async Task<ActionResult> Seed(int count)
-        {
-            if (count < 1)
-                return BadRequest();
-
-            if (_context.Showcases.Any() == false)
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    await _context.AddAsync(new Showcase()
-                    {
-                        Name = "Витрина " + (i + 1),
-                        CreatedAt = DateTime.Now,
-                        MaxCapacity = 1 + i
-                    });
-                }
-
-                await _context.SaveChangesAsync();
-            }
-
-            return NoContent();
-        }
     }
 }

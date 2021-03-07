@@ -20,10 +20,17 @@ namespace Shop.WebApi.Controller
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> Create([FromBody]Product product)
+        public async Task<ActionResult<Product>> Create([FromBody]ProductDTO productDTO)
         {
-            if (product == null)
+            if (productDTO == null)
                 return BadRequest();
+
+            var product = new Product()
+            {
+                Name = productDTO.Name,
+                Capacity = productDTO.Capacity,
+                Cost = productDTO.Cost
+            };
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
