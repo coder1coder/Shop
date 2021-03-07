@@ -148,9 +148,11 @@ namespace Shop.WebApi.Controller
             if (showcase.Products != null && showcase.Products.Any(x => x.Id == product.Id))
                 return BadRequest("Product already exist in showcase");
 
+            showcase.Products.Add(product);
+
             _context.Update(showcase);
 
-            showcase.Products.Add(product);
+            //showcase.Products.Add(product);
 
             await _context.SaveChangesAsync();
 
@@ -180,12 +182,9 @@ namespace Shop.WebApi.Controller
             if (product == null)
                 return BadRequest("Product does not exist");
 
-            if (showcase.Products != null && showcase.Products.Any(x => x.Id == product.Id))
-                return BadRequest("Product already exist in showcase");
+            showcase.Products.Remove(product);
 
             _context.Update(showcase);
-
-            showcase.Products.Add(product);
 
             await _context.SaveChangesAsync();
 
