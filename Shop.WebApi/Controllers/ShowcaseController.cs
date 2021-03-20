@@ -130,7 +130,7 @@ namespace Shop.WebApi.Controller
         /// <param name="productId"></param>
         /// <returns></returns>
         [HttpPost("{id:int}/place/{productId:int}")]
-        public async Task<ActionResult<Showcase>> Place(long id, long productId)
+        public async Task<ActionResult<Showcase>> Place(long id, long productId, [FromQuery]int count = 1)
         {
             var showcase = _context
                 .Showcases
@@ -148,11 +148,15 @@ namespace Shop.WebApi.Controller
             if (showcase.Products != null && showcase.Products.Any(x => x.Id == product.Id))
                 return BadRequest("Product already exist in showcase");
 
+            if (count <= 0)
+                return BadRequest("The Count should be positive number");
+
+            if (showcase.Capacity + product.Capacity * count > showcase.Capacity)
+                return BadRequest("There is no free space on the showcase");
+
             showcase.Products.Add(product);
 
             _context.Update(showcase);
-
-            //showcase.Products.Add(product);
 
             await _context.SaveChangesAsync();
 
