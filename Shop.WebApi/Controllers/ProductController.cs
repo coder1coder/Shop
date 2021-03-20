@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shop.WebApi.Model;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,10 +23,11 @@ namespace Shop.WebApi.Controller
         {
             if (productDTO == null)
                 return BadRequest();
-
+            
             var product = Product.FromDTO(productDTO);
 
             _context.Products.Add(product);
+
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(Get), new { id = product.Id }, product);

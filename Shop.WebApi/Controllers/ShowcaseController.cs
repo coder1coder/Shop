@@ -113,11 +113,10 @@ namespace Shop.WebApi.Controller
             if (showcase == null)
                 return NotFound("Showcase does not exist");
 
-            if (showcase.Products.Count() > 0)
+            if (showcase.Products.Count > 0)
                 return BadRequest("Can't remove. Showcase contain products.");
 
             showcase.RemovedAt = DateTime.Now;
-            //_context.Showcases.Remove(showcase);
 
             await _context.SaveChangesAsync();
             return Ok(showcase);
