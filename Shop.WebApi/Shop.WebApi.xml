@@ -72,5 +72,15 @@
             <param name="productId"></param>
             <returns></returns>
         </member>
+        <member name="T:Shop.WebApi.ResourceModels.LoginRequest">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Shop.WebApi.Services.AuthService">
+            <summary>
+            
+            </summary>
+        </member>
     </members>
 </doc>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Shop.WebApi.Services;
 using System.IO;
 
 namespace Shop.WebApi
@@ -13,6 +14,8 @@ namespace Shop.WebApi
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IAuthService, AuthService>();
+
             services.AddDbContext<DatabaseContext>(x => x.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
             services
                 .AddControllers()
