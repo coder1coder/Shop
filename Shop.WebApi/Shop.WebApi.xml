@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Shop.WebApi</name>
+    </assembly>
+    <members>
+        <member name="M:Shop.WebApi.Controller.ProductController.Create(Shop.WebApi.Model.ProductDTO)">
+            <summary>
+            Создание нового товара
+            </summary>
+            <param name="productDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Shop.WebApi.Controller.ShowcaseController.Create(Shop.WebApi.Model.ShowcaseDTO)">
+            <summary>
+            Create new showcase
+            </summary>
+            <param name="showcaseDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Shop.WebApi.Controller.ShowcaseController.Get(System.Boolean)">
+            <summary>
+            Get all items
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Shop.WebApi.Controller.ShowcaseController.Get(System.Int64)">
+            <summary>
+            Get one entity
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Shop.WebApi.Controller.ShowcaseController.Update(Shop.WebApi.Model.ShowcaseDTO)">
+            <summary>
+            Update entity
+            </summary>
+            <param name="showcaseDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Shop.WebApi.Controller.ShowcaseController.Delete(System.Int64)">
+            <summary>
+            Remove entity
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Shop.WebApi.Controller.ShowcaseController.Place(System.Int64,System.Int64,System.Int32)">
+            <summary>
+            Place product into showcase
+            </summary>
+            <param name="id"></param>
+            <param name="productId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Shop.WebApi.Controller.ShowcaseController.TakeOut(System.Int64,System.Int64)">
+            <summary>
+            Take out product from showcase
+            </summary>
+            <param name="id"></param>
+            <param name="productId"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

@@ -18,6 +18,11 @@ namespace Shop.WebApi.Controller
             _context = context;
         }
 
+        /// <summary>
+        /// Создание нового товара
+        /// </summary>
+        /// <param name="productDTO"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<Product>> Create([FromBody]ProductDTO productDTO)
         {
