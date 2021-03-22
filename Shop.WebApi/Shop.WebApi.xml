@@ -4,6 +4,17 @@
         <name>Shop.WebApi</name>
     </assembly>
     <members>
+        <member name="T:Shop.WebApi.Controller.ProductController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Shop.WebApi.Controller.ProductController.#ctor(Shop.WebApi.DatabaseContext)">
+            <summary>
+            
+            </summary>
+            <param name="context"></param>
+        </member>
         <member name="M:Shop.WebApi.Controller.ProductController.Create(Shop.WebApi.Model.ProductDTO)">
             <summary>
             Создание нового товара

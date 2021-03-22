@@ -7,12 +7,19 @@ using System.Threading.Tasks;
 
 namespace Shop.WebApi.Controller
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class ProductController : ControllerBase
     {
         private readonly DatabaseContext _context;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
         public ProductController(DatabaseContext context)
         {
             _context = context;

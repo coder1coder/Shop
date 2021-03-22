@@ -40,10 +40,14 @@ namespace Shop.WebApi
 
             app.UseRouting();
 
+            app.UseHttpsRedirection();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            
         }
     }
 }
